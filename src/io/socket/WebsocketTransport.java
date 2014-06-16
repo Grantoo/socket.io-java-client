@@ -31,6 +31,7 @@ class WebsocketTransport extends WebSocketClient implements IOTransport {
 
 	public WebsocketTransport(URI uri, IOConnection connection) {
 		super(uri);
+        java.security.Provider[] providers = java.security.Security.getProviders();
 		this.connection = connection;
 
 		SSLContext context = null;
@@ -40,7 +41,15 @@ class WebsocketTransport extends WebSocketClient implements IOTransport {
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		} catch (NoSuchProviderException e) {
-			e.printStackTrace();
+		    try {
+    		    context = SSLContext.getInstance("SSL", "SunJSSE");
+            } catch (NoSuchAlgorithmException e2) {
+                e2.printStackTrace();
+                e.printStackTrace();
+            } catch (NoSuchProviderException e2) {
+                e2.printStackTrace();
+                e.printStackTrace();
+		    }
 		}
 
 		if (context == null) {

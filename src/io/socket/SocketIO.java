@@ -133,13 +133,13 @@ public class SocketIO {
 	 */
 	public void connect(final String url, final IOCallback callback)
 		throws MalformedURLException {
-		if (setAndConnect(new URL(url), callback) == false) {
-			if (url == null || callback == null)
-				throw new RuntimeException("url and callback may not be null.");
-			else
-				throw new RuntimeException(
-					"connect(String, IOCallback) can only be invoked after SocketIO()");
-		}
+            if (setAndConnect(new URL(url), callback) == false) {
+                if (url == null || callback == null)
+                    throw new RuntimeException("url and callback may not be null.");
+                else
+                    throw new RuntimeException(
+                        "connect(String, IOCallback) can only be invoked after SocketIO()");
+            }
 	}
 
 	/**

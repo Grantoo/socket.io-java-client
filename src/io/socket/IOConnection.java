@@ -430,11 +430,14 @@ class IOConnection implements IOCallback {
 		sockets.clear();
 		synchronized (connections) {
 			List<IOConnection> con = connections.get(urlStr);
-			if (con != null && con.size() > 1)
+			if (con != null && con.size() > 1) {
 				con.remove(this);
-			else
+		    } else {
 				connections.remove(urlStr);
+		    }
 		}
+		this.transport.disconnect();
+
 		logger.info("Cleanup");
 		backgroundTimer.cancel();
 	}
@@ -486,11 +489,11 @@ class IOConnection implements IOCallback {
 		if (heartbeatTimeoutTask != null) {
 			heartbeatTimeoutTask.cancel();
 		}
-		if (getState() != STATE_INVALID) {
-			heartbeatTimeoutTask = new HearbeatTimeoutTask();
-			backgroundTimer.schedule(heartbeatTimeoutTask, closingTimeout
-				+ heartbeatTimeout);
-		}
+//		if (getState() != STATE_INVALID) {
+//			heartbeatTimeoutTask = new HearbeatTimeoutTask();
+//			backgroundTimer.schedule(heartbeatTimeoutTask, closingTimeout
+//				+ heartbeatTimeout);
+//		}
 	}
 
 	/**
