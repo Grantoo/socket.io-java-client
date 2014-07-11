@@ -432,9 +432,9 @@ class IOConnection implements IOCallback {
 			List<IOConnection> con = connections.get(urlStr);
 			if (con != null && con.size() > 1) {
 				con.remove(this);
-		    } else {
+			} else {
 				connections.remove(urlStr);
-		    }
+			}
 		}
 		this.transport.disconnect();
 
