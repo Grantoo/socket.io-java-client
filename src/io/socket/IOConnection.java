@@ -436,7 +436,8 @@ class IOConnection implements IOCallback {
 				connections.remove(urlStr);
 			}
 		}
-		this.transport.disconnect();
+		if (this.transport != null)
+			this.transport.disconnect();
 
 		logger.info("Cleanup");
 		backgroundTimer.cancel();
