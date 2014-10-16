@@ -82,9 +82,11 @@ class IOConnection implements IOCallback {
 	private String sessionId;
 
 	/** The heartbeat timeout. Set by the server */
+	@SuppressWarnings("unused")
 	private long heartbeatTimeout;
 
 	/** The closing timeout. Set By the server */
+	@SuppressWarnings("unused")
 	private long closingTimeout;
 
 	/** The protocols supported by the server. */

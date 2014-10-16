@@ -31,7 +31,10 @@ class WebsocketTransport extends WebSocketClient implements IOTransport {
 
 	public WebsocketTransport(URI uri, IOConnection connection) {
 		super(uri);
+
+		@SuppressWarnings("unused")
 		java.security.Provider[] providers = java.security.Security.getProviders();
+
 		this.connection = connection;
 
 		SSLContext context = null;
