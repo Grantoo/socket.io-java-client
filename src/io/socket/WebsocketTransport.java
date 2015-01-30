@@ -8,7 +8,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.util.regex.Pattern;
 import javax.net.ssl.SSLContext;
-import org.java_websocket.client.DefaultSSLWebSocketClientFactory;
+import javax.net.ssl.SSLSocketFactory;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
@@ -70,7 +70,11 @@ class WebsocketTransport extends WebSocketClient implements IOTransport {
 		}
 
 		if ("wss".equals(uri.getScheme())) {
-			this.setWebSocketFactory(new DefaultSSLWebSocketClientFactory(context));
+			try {
+				this.setSocket(SSLSocketFactory.getDefault().createSocket());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
