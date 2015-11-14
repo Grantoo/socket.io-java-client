@@ -28,6 +28,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import android.annotation.SuppressLint;
+import android.text.TextUtils;
 
 /**
  * The Class IOConnection.
@@ -82,7 +83,6 @@ class IOConnection implements IOCallback {
 	private String sessionId;
 
 	/** The heartbeat timeout. Set by the server */
-	@SuppressWarnings("unused")
 	private long heartbeatTimeout;
 
 	/** The closing timeout. Set By the server */
@@ -136,6 +136,18 @@ class IOConnection implements IOCallback {
 	 * initialised.
 	 */
 	private HearbeatTimeoutTask heartbeatTimeoutTask;
+
+	/**
+	 * Flags whether or not the heartbeat timeout should be ignored on a given
+	 * connection.
+	 */
+	private boolean ignoreHeartbeatTimeout;
+
+	/**
+	 * The default heartbeat timeout duration (in seconds) to use if the server
+	 * does not provide one.
+	 */
+	private static long defaultHeartbeatTimeout;
 
 	/**
 	 * The Class HearbeatTimeoutTask. Handles dropping this IOConnection if no
@@ -221,6 +233,17 @@ class IOConnection implements IOCallback {
 	 */
 	public static SSLContext getSslContext() {
 		return sslContext;
+	}
+
+	/**
+	 * Sets the default heartbeat timeout to fallback on in case the server
+	 * doesn't define one.
+	 * 
+	 * @param defaultHeartbeatTimeout The default heartbeat timeout (in
+	 *        milliseconds) to fallback on.
+	 */
+	public static void setDefaultHeartbeatTimeout(long defaultHeartbeatTimeout) {
+		IOConnection.defaultHeartbeatTimeout = defaultHeartbeatTimeout;
 	}
 
 	/**
@@ -320,8 +343,27 @@ class IOConnection implements IOCallback {
 			response = in.nextLine();
 			String[] data = response.split(":");
 			sessionId = data[0];
-			heartbeatTimeout = Long.parseLong(data[1]) * 1000;
-			closingTimeout = Long.parseLong(data[2]) * 1000;
+
+			heartbeatTimeout = TextUtils.isEmpty(data[1]) ? 0 : Long.parseLong(data[1]) * 1000;
+			ignoreHeartbeatTimeout = false;
+
+			if (heartbeatTimeout <= 0) {
+				if (defaultHeartbeatTimeout <= 0) {
+					// allowing the connection to persist on the client-side in case
+					// the server does not support a heartbeat in order to prevent a
+					// premature disconnect on the client side
+					ignoreHeartbeatTimeout = true;
+				} else {
+					heartbeatTimeout = defaultHeartbeatTimeout;
+				}
+			}
+
+			if (!ignoreHeartbeatTimeout) {
+				// add small buffer of 7 sec (magic xD) otherwise heartbeat will be too late and connection is closed
+				heartbeatTimeout += 7000;
+			}
+
+			closingTimeout = TextUtils.isEmpty(data[2]) ? 0 : Long.parseLong(data[2]) * 1000;
 			protocols = Arrays.asList(data[3].split(","));
 		} catch (Exception e) {
 			error(new SocketIOException("Error while handshaking", e));
@@ -489,14 +531,19 @@ class IOConnection implements IOCallback {
 	 * Reset timeout.
 	 */
 	private synchronized void resetTimeout() {
-		if (heartbeatTimeoutTask != null) {
-			heartbeatTimeoutTask.cancel();
+		if (getState() != STATE_INVALID) {
+			if (heartbeatTimeoutTask != null) {
+				heartbeatTimeoutTask.cancel();
+				heartbeatTimeoutTask = null;
+			}
+
+			if (ignoreHeartbeatTimeout) {
+				return;
+			}
+
+			heartbeatTimeoutTask = new HearbeatTimeoutTask();
+			backgroundTimer.schedule(heartbeatTimeoutTask, heartbeatTimeout);
 		}
-//		if (getState() != STATE_INVALID) {
-//			heartbeatTimeoutTask = new HearbeatTimeoutTask();
-//			backgroundTimer.schedule(heartbeatTimeoutTask, closingTimeout
-//				+ heartbeatTimeout);
-//		}
 	}
 
 	/**

@@ -124,6 +124,10 @@ public class SocketIO {
 		IOConnection.setSslContext(sslContext);
 	}
 
+	public static void setDefaultHeartbeatTimeout(long defaultHeartbeatTimeout) {
+		IOConnection.setDefaultHeartbeatTimeout(defaultHeartbeatTimeout);
+	}
+
 	/**
 	 * connects to supplied host using callback. Do only use this method if you
 	 * instantiate {@link SocketIO} using {@link #SocketIO()}.
