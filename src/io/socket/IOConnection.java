@@ -144,8 +144,8 @@ class IOConnection implements IOCallback {
 	private boolean ignoreHeartbeatTimeout;
 
 	/**
-	 * The default heartbeat timeout duration (in seconds) to use if the server
-	 * does not provide one.
+	 * The default heartbeat timeout duration (in milliseconds) to use if the
+	 * server does not provide one.
 	 */
 	private static long defaultHeartbeatTimeout;
 

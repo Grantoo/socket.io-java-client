@@ -124,6 +124,13 @@ public class SocketIO {
 		IOConnection.setSslContext(sslContext);
 	}
 
+	/**
+	 * Sets the default heartbeat timeout to fallback on in case the server
+	 * fails to provide one.
+	 *
+	 * @param defaultHeartbeatTimeout The default heartbeat timeout (in
+	 *        milliseconds) to fallback on.
+	 */
 	public static void setDefaultHeartbeatTimeout(long defaultHeartbeatTimeout) {
 		IOConnection.setDefaultHeartbeatTimeout(defaultHeartbeatTimeout);
 	}
