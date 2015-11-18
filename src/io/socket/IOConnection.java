@@ -358,11 +358,6 @@ class IOConnection implements IOCallback {
 				}
 			}
 
-			if (!ignoreHeartbeatTimeout) {
-				// add small buffer of 7 sec (magic xD) otherwise heartbeat will be too late and connection is closed
-				heartbeatTimeout += 7000;
-			}
-
 			closingTimeout = TextUtils.isEmpty(data[2]) ? 0 : Long.parseLong(data[2]) * 1000;
 			protocols = Arrays.asList(data[3].split(","));
 		} catch (Exception e) {
