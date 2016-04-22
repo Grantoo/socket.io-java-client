@@ -21,6 +21,7 @@ import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -29,6 +30,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import android.annotation.SuppressLint;
 import android.text.TextUtils;
+import com.fuelpowered.lib.propeller.PropellerSDKUtil;
 
 /**
  * The Class IOConnection.
@@ -446,6 +448,11 @@ class IOConnection implements IOCallback {
 	 * @param socket the socket
 	 */
 	private IOConnection(String url, SocketIO socket) {
+		if (PropellerSDKUtil.isDebugBuild()) {
+			IOConnection.logger.setLevel(Level.ALL);
+		} else {
+			IOConnection.logger.setLevel(Level.WARNING);
+		}
 		try {
 			this.url = new URL(url);
 			this.urlStr = url;
